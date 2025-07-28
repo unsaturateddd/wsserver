@@ -1,6 +1,8 @@
-// server.js
+const http = require('http');
+const server = http.createServer(); // создаём обычный HTTP сервер
+
 const WebSocket = require('ws');
-const wss = new WebSocket.Server({ port: 8080 });
+const wss = new WebSocket.Server({ server });
 
 let clients = [];
 
@@ -11,7 +13,6 @@ wss.on('connection', (ws) => {
   ws.on('message', (message) => {
     console.log('📨 Сообщение:', message.toString());
 
-    // Рассылаем всем, кроме отправителя
     clients.forEach(client => {
       if (client !== ws && client.readyState === WebSocket.OPEN) {
         client.send(message.toString());
@@ -25,4 +26,8 @@ wss.on('connection', (ws) => {
   });
 });
 
-console.log('📡 WebSocket сервер запущен на ws://localhost:8080');
+// Используем порт от Render или 8080 по умолчанию
+const PORT = process.env.PORT || 8080;
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`📡 WebSocket сервер запущен на ws://0.0.0.0:${PORT}`);
+});
